@@ -1,0 +1,12 @@
+pato
+gallina
+vaca
+mandril
+mapache
+gato
+perro
+bisonte
+rata
+caballo
+burro
+chancho
