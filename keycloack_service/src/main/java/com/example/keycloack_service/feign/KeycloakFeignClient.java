@@ -16,4 +16,10 @@ public interface KeycloakFeignClient {
 
     @PostMapping("${feign.client.config.keycloak.token-path}")
     String getAdminToken(@RequestBody MultiValueMap<String, String> formData);
+
+    @PostMapping("/admin/realms/tpi_dh_gaston_campagno/users")
+    void createUser(
+            @RequestHeader("Authorization") String authorization,
+            @RequestBody Map<String, Object> userPayload
+    );
 }
