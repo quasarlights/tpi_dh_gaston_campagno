@@ -21,7 +21,8 @@ public class UserController {
     @PostMapping
     public ResponseEntity<String> createUser(@RequestBody UserRequest userRequest) {
         try {
-            keycloakUserService.createUserInKeycloak(userRequest.getUsername(), userRequest.getPassword());
+            keycloakUserService.createUserInKeycloak(userRequest.getUsername(), userRequest.getPassword(),
+            userRequest.getEmail(), userRequest.getFirstName(), userRequest.getLastName());
             return ResponseEntity.status(HttpStatus.CREATED).body("User created successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating user: " + e.getMessage());

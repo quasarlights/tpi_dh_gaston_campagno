@@ -1,6 +1,7 @@
 package com.example.keycloack_service.service;
 
 import com.example.keycloack_service.feign.KeycloakFeignClient;
+import com.example.keycloack_service.feign.LoginFeignClient;
 import com.example.keycloack_service.model.CachedToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,11 +10,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,8 +33,52 @@ public class AuthService {
     @Autowired
     private KeycloakFeignClient keycloakFeignClient;
     @Autowired
+    private LoginFeignClient loginFeignClient;
+    @Autowired
     private CacheManager cacheManager;
+    @Value("${feign.client.config.keycloak.client-id}")
+    private String clientId;
 
+    @Value("${feign.client.config.keycloak.url-login}")
+    private String keycloakTokenUrl;
+    @Value("${feign.client.config.keycloak.client-secret:}")
+    private String clientSecret; // Opcional si el cliente es público
+
+    @Value("${feign.client.config.keycloak.realm}")
+    private String realm;
+    @Autowired
+    private RestTemplate restTemplate;
+
+    //LOGIN
+    public String login(String username, String password, String email) {
+        // Construir encabezados
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/x-www-form-urlencoded");
+
+        // Construir el cuerpo de la solicitud
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("client_id", clientId);
+        formData.add("grant_type", "password");
+        formData.add("username", username);
+        formData.add("password", password);
+        formData.add("email", email);
+        formData.add("client_secret", clientSecret);
+
+        // Crear la entidad HTTP
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(formData, headers);
+
+        // Realizar la solicitud
+        ResponseEntity<String> response = restTemplate.postForEntity(keycloakTokenUrl, requestEntity, String.class);
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            // Retornar la respuesta del token
+            return response.getBody();
+        } else {
+            throw new RuntimeException("Error al autenticar con Keycloak: " + response.getStatusCode());
+        }
+    }
+
+    //GET ADMIN TOKEN FOR CREATE USERS
     @Cacheable(value = "adminTokenCache", key = "'adminToken'")
     public String getAdminToken() {
         CachedToken cachedToken = getCachedToken();

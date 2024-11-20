@@ -10,6 +10,7 @@ feign:
     config:
       keycloak:
         url: http://localhost:8080
+        url-login: http://localhost:8080/realms/tpi_dh_gaston_campagno/protocol/openid-connect/token
         realm: tpi_dh_gaston_campagno
         client-id: ${KEYCLOAK_CLIENT_ID:admin-service} # Carga desde variables de entorno
         client-secret: ${KEYCLOAK_CLIENT_SECRET:k0ffwii1RTQ37ISe58j3doQGMVICNPv2} # Variables de entorno

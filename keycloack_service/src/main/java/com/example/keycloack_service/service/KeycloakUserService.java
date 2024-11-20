@@ -25,7 +25,7 @@ public class KeycloakUserService {
     @Value("${feign.client.config.keycloak.url}")
     private String keycloakBaseUrl;
 
-    public void createUserInKeycloak(String username, String password) {
+    public void createUserInKeycloak(String username, String password, String email, String firstName, String lastName) {
         // Recuperamos el token de administrador
         String adminToken = authService.getAdminToken();
         String token = getAccessTokenFromJson(adminToken);
@@ -42,6 +42,9 @@ public class KeycloakUserService {
         credentials.put("temporary", "false");
 
         payload.put("credentials", Collections.singletonList(credentials));
+        payload.put("email", email);
+        payload.put("firstName", firstName);
+        payload.put("lastName", lastName);
 
         // Hacemos la solicitud a Keycloak
         keycloakFeignClient.createUser("Bearer " + token, payload);

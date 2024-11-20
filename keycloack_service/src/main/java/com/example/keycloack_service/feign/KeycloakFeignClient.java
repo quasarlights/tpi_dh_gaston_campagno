@@ -1,5 +1,7 @@
 package com.example.keycloack_service.feign;
 
+import feign.Headers;
+import feign.RequestLine;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

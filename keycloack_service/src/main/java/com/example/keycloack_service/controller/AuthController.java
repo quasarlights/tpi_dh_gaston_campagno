@@ -1,14 +1,14 @@
 package com.example.keycloack_service.controller;
 
 
+import com.example.keycloack_service.dto.LoginRequest;
 import com.example.keycloack_service.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
@@ -22,6 +22,16 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error obteniendo el token: " + e.getMessage());
         }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+        String tokenResponse = authService.login(
+                loginRequest.getUsername(),
+                loginRequest.getPassword(),
+                loginRequest.getEmail()
+        );
+        return ResponseEntity.ok(tokenResponse);
     }
 
 }
