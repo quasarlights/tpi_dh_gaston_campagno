@@ -2,10 +2,13 @@ package com.example.keycloack_service.controller;
 
 
 import com.example.keycloack_service.dto.LoginRequest;
+import com.example.keycloack_service.dto.TokenResponse;
 import com.example.keycloack_service.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -25,13 +28,23 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
-        String tokenResponse = authService.login(
+    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest loginRequest) {
+        TokenResponse tokenResponse = authService.login(
                 loginRequest.getUsername(),
                 loginRequest.getPassword(),
                 loginRequest.getEmail()
         );
         return ResponseEntity.ok(tokenResponse);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestBody Map<String, String> requestBody) {
+        String refreshToken = requestBody.get("refresh_token");
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            throw new IllegalArgumentException("Refresh token is required");
+        }
+        authService.logout(refreshToken);
+        return ResponseEntity.ok().build();
     }
 
 }

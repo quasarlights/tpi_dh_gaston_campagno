@@ -19,25 +19,5 @@ import java.nio.charset.StandardCharsets;
 @Configuration
 public class FeignConfig {
 
-    @Bean
-    public Encoder feignEncoder() {
-        return new GsonEncoder(); // O cualquier otro encoder que prefieras.
-    }
 
-    @Bean
-    public HttpMessageConverter<?> formHttpMessageConverter() {
-        return new FormHttpMessageConverter();
-    }
-
-    @Bean
-    public RequestInterceptor requestInterceptor() {
-        return new RequestInterceptor() {
-            @Override
-            public void apply(RequestTemplate template) {
-                // Log adicional para ver si el interceptor es invocado
-                System.out.println("Interceptor Invocado: " + template.request());
-                System.out.println("Feing Request Body: " + new String(template.body(), StandardCharsets.UTF_8));
-            }
-        };
-    }
 }

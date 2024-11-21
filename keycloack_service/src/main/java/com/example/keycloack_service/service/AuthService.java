@@ -1,5 +1,6 @@
 package com.example.keycloack_service.service;
 
+import com.example.keycloack_service.dto.TokenResponse;
 import com.example.keycloack_service.feign.KeycloakFeignClient;
 import com.example.keycloack_service.feign.LoginFeignClient;
 import com.example.keycloack_service.model.CachedToken;
@@ -13,6 +14,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -41,16 +43,20 @@ public class AuthService {
 
     @Value("${feign.client.config.keycloak.url-login}")
     private String keycloakTokenUrl;
-    @Value("${feign.client.config.keycloak.client-secret:}")
+    @Value("${feign.client.config.keycloak.client-secret}")
     private String clientSecret; // Opcional si el cliente es público
 
     @Value("${feign.client.config.keycloak.realm}")
     private String realm;
+    @Value("${feign.client.config.keycloak.url}")
+    private String urlBase;
+    @Value("${feign.client.config.keycloak.url-logout}")
+    private String urlLogout;
     @Autowired
     private RestTemplate restTemplate;
 
     //LOGIN
-    public String login(String username, String password, String email) {
+    public TokenResponse  login(String username, String password, String email) {
         // Construir encabezados
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/x-www-form-urlencoded");
@@ -68,7 +74,7 @@ public class AuthService {
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(formData, headers);
 
         // Realizar la solicitud
-        ResponseEntity<String> response = restTemplate.postForEntity(keycloakTokenUrl, requestEntity, String.class);
+        ResponseEntity<TokenResponse> response = restTemplate.postForEntity(keycloakTokenUrl, requestEntity, TokenResponse .class);
 
         if (response.getStatusCode().is2xxSuccessful()) {
             // Retornar la respuesta del token
@@ -76,6 +82,24 @@ public class AuthService {
         } else {
             throw new RuntimeException("Error al autenticar con Keycloak: " + response.getStatusCode());
         }
+    }
+
+    public void logout(String refreshToken) {
+        String logoutUrl = String.format(urlLogout);
+        System.out.println("LOGOUT URL: " + logoutUrl);
+        System.out.println("REFRESH TOKEN: " + refreshToken);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("client_id", clientId);
+        body.add("client_secret", clientSecret); // Solo si el cliente es confidencial
+        body.add("refresh_token", refreshToken);
+        System.out.println("HEADERS: " + headers);
+        System.out.println("BODY: " + body);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+
+        restTemplate.postForEntity(logoutUrl, request, Void.class);
     }
 
     //GET ADMIN TOKEN FOR CREATE USERS
@@ -92,8 +116,8 @@ public class AuthService {
         // Si no está en caché o ha expirado, obtenemos un nuevo token
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("grant_type", "client_credentials");
-        formData.add("client_id", "admin-service");
-        formData.add("client_secret", "k0ffwii1RTQ37ISe58j3doQGMVICNPv2");
+        formData.add("client_id", clientId);
+        formData.add("client_secret", clientSecret);
 
         String tokenResponse = keycloakFeignClient.getAdminToken(formData);
 
