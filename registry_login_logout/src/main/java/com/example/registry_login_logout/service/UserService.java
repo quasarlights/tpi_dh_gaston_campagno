@@ -1,9 +1,12 @@
 package com.example.registry_login_logout.service;
 
-import com.example.registry_login_logout.model.User;
-import com.example.registry_login_logout.repository.UserRepository;
+import com.example.registry_login_logout.model.Account;
+import com.example.registry_login_logout.model.Users;
+import com.example.registry_login_logout.repository.AccountRepository;
+import com.example.registry_login_logout.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.Random;
 import java.nio.file.*;
 import java.io.IOException;
@@ -15,26 +18,42 @@ import java.util.stream.Collectors;
 public class UserService {
 
     @Autowired
-    private UserRepository userRepository;
+    private UsersRepository userRepository;
+    @Autowired
+    private AccountRepository accountRepository;
 
     // Método para registrar un usuario
-    public User registerUser(User user) throws IOException {
-        System.out.println("USER" + user + "FROM SERVICE");
-        if (userRepository.existsByEmail(user.getEmail())) {
+
+
+    public Users registerUser(Users users) throws IOException {
+        // Validar si el email ya está registrado
+        if (userRepository.existsByEmail(users.getEmail())) {
             throw new IllegalArgumentException("El usuario ya está registrado");
         }
 
-        user.setCvu(generateCVU());
-        System.out.println("PASANDO A GENERATE ALIAS");
-        user.setAlias(generateAlias());
-        System.out.println(user);
-        // Guardamos el usuario sin la contraseña en la respuesta JSON
-        User savedUser = userRepository.save(user);
-        savedUser.setPassword(null);
-        System.out.println("SAVED USER: " + savedUser);
-        return savedUser;
+        // Crear la cuenta asociada
+        Account account = createAccount();
+        System.out.println("ACCOUNT CREATION: " + account);
 
+        users.setAccount(account);
+        users= userRepository.save(users);
+        System.out.println("Persisted User: " + users);
+        // Establecer la relación bidireccional
+
+        return users;
     }
+
+
+    private Account createAccount() throws IOException {
+        Account account = new Account();
+        account.setCvu(generateCVU());
+        account.setAlias(generateAlias());
+
+        // Guardar la cuenta en la base de datos
+        return accountRepository.save(account);
+    }
+
+
 
     private String generateCVU() {
         Random random = new Random();

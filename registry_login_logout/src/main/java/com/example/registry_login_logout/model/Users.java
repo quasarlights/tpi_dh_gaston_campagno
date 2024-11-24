@@ -5,8 +5,8 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "\"user\"")
-public class User {
+@Table(name = "users")
+public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,8 +20,9 @@ public class User {
     private String telefono;
     @Column(nullable = false)
     private String password;
-    @Column(nullable = false)
-    private String cvu;
-    @Column(nullable = false)
-    private String alias;
+
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL) // Propaga cambios y elimina Account al eliminar User
+    @JoinColumn(name = "account_id", referencedColumnName = "id") // Usa account_id como FK
+    private Account account;
 }

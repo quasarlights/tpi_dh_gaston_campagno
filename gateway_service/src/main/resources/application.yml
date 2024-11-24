@@ -9,7 +9,7 @@ spring:
         - PreserveHostHeader
       routes:
         - id: registry_login_logout
-          uri: http://localhost:8080
+          uri: http://localhost:8083
           predicates:
             - Path=/users/**
 
