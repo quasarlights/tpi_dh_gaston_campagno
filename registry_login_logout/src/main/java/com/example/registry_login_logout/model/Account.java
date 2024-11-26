@@ -17,6 +17,9 @@ public class Account {
     @Column(nullable = false)
     private String alias;
 
+    @Column(nullable = false)
+    private double saldo = 0.0; // Saldo inicializado en 0.0
+
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "account") // Aquí el 'mappedBy' indica que este es el lado no propietario
     private Users users;
 

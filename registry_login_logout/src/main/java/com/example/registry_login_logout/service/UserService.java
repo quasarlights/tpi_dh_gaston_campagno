@@ -1,5 +1,7 @@
 package com.example.registry_login_logout.service;
 
+import com.example.registry_login_logout.dto.KeycloakUserRequest;
+import com.example.registry_login_logout.feign.KeycloakServiceClient;
 import com.example.registry_login_logout.model.Account;
 import com.example.registry_login_logout.model.Users;
 import com.example.registry_login_logout.repository.AccountRepository;
@@ -21,6 +23,8 @@ public class UserService {
     private UsersRepository userRepository;
     @Autowired
     private AccountRepository accountRepository;
+    @Autowired
+    KeycloakServiceClient keycloakServiceClient;
 
     // Método para registrar un usuario
 
@@ -37,9 +41,31 @@ public class UserService {
 
         users.setAccount(account);
         users= userRepository.save(users);
-        System.out.println("Persisted User: " + users);
-        // Establecer la relación bidireccional
+        System.out.println("Persisted User: " +
+users);
 
+        // Extraer valores de nyap
+        String[] nyapParts = users.getNyap().split(" ", 2);
+        String firstName = nyapParts[0];
+        String lastName = nyapParts.length > 1 ? nyapParts[1] : "";
+
+        // Crear KeycloakUserRequest
+        KeycloakUserRequest keycloakUserRequest = new KeycloakUserRequest(
+                users.getEmail(),         // username
+                users.getPassword(),      // password
+                users.getEmail(),         // email
+                firstName,               // firstName
+                lastName                 // lastName
+        );
+
+        try {
+            keycloakServiceClient.createUserInKeycloak(keycloakUserRequest);
+        } catch (Exception e) {
+            // Maneja el error según sea necesario
+            throw new RuntimeException("Error al registrar usuario en Keycloak", e);
+        }
+
+        // Establecer la relación bidireccional
         return users;
     }
 
