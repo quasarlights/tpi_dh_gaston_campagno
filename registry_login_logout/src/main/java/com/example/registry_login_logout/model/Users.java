@@ -1,5 +1,7 @@
 package com.example.registry_login_logout.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -24,5 +26,6 @@ public class Users {
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL) // Propaga cambios y elimina Account al eliminar User
     @JoinColumn(name = "account_id", referencedColumnName = "id") // Usa account_id como FK
+    @JsonIgnore
     private Account account;
 }

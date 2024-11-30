@@ -10,6 +10,8 @@
         <option value="$PROJECT_DIR$/database-service/pom.xml" />
         <option value="$PROJECT_DIR$/h2server/pom.xml" />
         <option value="$PROJECT_DIR$/keycloack_service/pom.xml" />
+        <option value="$PROJECT_DIR$/movements/pom.xml" />
+        <option value="$PROJECT_DIR$/cards/pom.xml" />
       </list>
     </option>
   </component>

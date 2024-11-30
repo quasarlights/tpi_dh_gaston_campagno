@@ -8,8 +8,10 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="database-service" />
+        <module name="cards" />
         <module name="eureka_server" />
         <module name="keycloack_service" />
+        <module name="movements" />
         <module name="registry_login_logout" />
         <module name="gateway" />
         <module name="h2server" />
@@ -17,23 +19,27 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="cards" target="17" />
       <module name="database-service" target="17" />
       <module name="eureka_server" target="17" />
       <module name="gateway" target="17" />
       <module name="gateway_service" target="17" />
       <module name="h2server" target="17" />
       <module name="keycloack_service" target="17" />
+      <module name="movements" target="17" />
       <module name="registry_login_logout" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="cards" options="-parameters" />
       <module name="database-service" options="-parameters" />
       <module name="eureka_server" options="-parameters" />
       <module name="gateway" options="-parameters" />
       <module name="gateway_service" options="-parameters" />
       <module name="h2server" options="-parameters" />
       <module name="keycloack_service" options="-parameters" />
+      <module name="movements" options="-parameters" />
       <module name="registry_login_logout" options="-parameters" />
     </option>
   </component>
